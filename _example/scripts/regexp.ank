@@ -1,8 +1,24 @@
 #!anko
 
+/*
 var regexp = import("regexp")
-
+printf("Regexp: %v\n", regexp)
 for s in regexp.MustCompile(`[\s_]`).Split("foo_bar_baz", -1) {
   println(s)
 }
+*/
+
+
+var regexp = import("regexp")
+printf("Regexp: %v\n", regexp)
+
+// Create the pattern first
+var re = regexp["MustCompile"](`[\s_]`)
+println("Compiled")
+// Then call Split on the result
+var parts = re.Split("foo_bar_baz", -1)
+for s in parts {
+  println(s)
+}
+
 

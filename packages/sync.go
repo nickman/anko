@@ -3,21 +3,33 @@ package packages
 import (
 	"reflect"
 	"sync"
-
-	"github.com/mattn/anko/env"
+	"sync/atomic"
 )
 
 func init() {
-	env.Packages["sync"] = map[string]reflect.Value{
-		"NewCond": reflect.ValueOf(sync.NewCond),
-	}
-	env.PackageTypes["sync"] = map[string]reflect.Type{
-		"Cond":      reflect.TypeOf(sync.Cond{}),
-		"Mutex":     reflect.TypeOf(sync.Mutex{}),
-		"Once":      reflect.TypeOf(sync.Once{}),
-		"Pool":      reflect.TypeOf(sync.Pool{}),
-		"RWMutex":   reflect.TypeOf(sync.RWMutex{}),
-		"WaitGroup": reflect.TypeOf(sync.WaitGroup{}),
-	}
-	syncGo19()
+	defer func() {
+		atomic.AddInt32(initCount, 1)
+	}()
+
+	go func() {
+		completion.Add(1)
+		defer completion.Done()
+
+		funcs := map[string]reflect.Value{
+			"NewCond": reflect.ValueOf(sync.NewCond),
+		}
+		storeFuncs("sync", funcs)
+		//env.PackageTypes["sync"]
+		types := map[string]reflect.Type{
+			"Cond":      reflect.TypeOf(sync.Cond{}),
+			"Mutex":     reflect.TypeOf(sync.Mutex{}),
+			"Once":      reflect.TypeOf(sync.Once{}),
+			"Pool":      reflect.TypeOf(sync.Pool{}),
+			"RWMutex":   reflect.TypeOf(sync.RWMutex{}),
+			"WaitGroup": reflect.TypeOf(sync.WaitGroup{}),
+			"Map":       reflect.TypeOf(sync.Map{}),
+		}
+		storeTypes("sync", types)
+	}()
+
 }

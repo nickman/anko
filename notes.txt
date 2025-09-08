@@ -1,0 +1,1 @@
+err := env.DefineType("mapStringInterface", map[string]interface{}{})

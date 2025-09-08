@@ -1,7 +1,8 @@
 #!anko
 
 var url = import("net/url")
-
+printf("URL Type: %T\n", url)
 u, _ = url.Parse("http://www.google.com/search?q=こんにちわ世界")
+println("=====", u)
 println(u.Path)
 println(u.Host)

@@ -3,13 +3,22 @@ package packages
 import (
 	"os/signal"
 	"reflect"
-
-	"github.com/mattn/anko/env"
+	"sync/atomic"
 )
 
 func init() {
-	env.Packages["os/signal"] = map[string]reflect.Value{
-		"Notify": reflect.ValueOf(signal.Notify),
-		"Stop":   reflect.ValueOf(signal.Stop),
-	}
+	defer func() {
+		atomic.AddInt32(initCount, 1)
+	}()
+
+	go func() {
+		completion.Add(1)
+		defer completion.Done()
+
+		funcs := map[string]reflect.Value{
+			"Notify": reflect.ValueOf(signal.Notify),
+			"Stop":   reflect.ValueOf(signal.Stop),
+		}
+		storeFuncs("os/signal", funcs)
+	}()
 }

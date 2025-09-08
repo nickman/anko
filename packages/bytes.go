@@ -3,12 +3,14 @@ package packages
 import (
 	"bytes"
 	"reflect"
-
-	"github.com/mattn/anko/env"
+	"sync/atomic"
 )
 
 func init() {
-	env.Packages["bytes"] = map[string]reflect.Value{
+	defer func() {
+		atomic.AddInt32(initCount, 1)
+	}()
+	byteFuncs := map[string]reflect.Value{
 		"Compare":         reflect.ValueOf(bytes.Compare),
 		"Contains":        reflect.ValueOf(bytes.Contains),
 		"Count":           reflect.ValueOf(bytes.Count),
@@ -55,10 +57,13 @@ func init() {
 		"TrimRightFunc":   reflect.ValueOf(bytes.TrimRightFunc),
 		"TrimSpace":       reflect.ValueOf(bytes.TrimSpace),
 		"TrimSuffix":      reflect.ValueOf(bytes.TrimSuffix),
+		"ContainsRune":    reflect.ValueOf(bytes.ContainsRune),
 	}
-	env.PackageTypes["bytes"] = map[string]reflect.Type{
+	storeFuncs("bytes", byteFuncs)
+	byteTypes := map[string]reflect.Type{
 		"Buffer": reflect.TypeOf(bytes.Buffer{}),
 		"Reader": reflect.TypeOf(bytes.Reader{}),
 	}
-	bytesGo17()
+	storeTypes("bytes", byteTypes)
+
 }

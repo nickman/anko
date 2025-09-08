@@ -391,7 +391,7 @@ func TestPointerFunctions(t *testing.T) {
 			return "invalid"
 		}
 		if rv.Kind() != reflect.Ptr {
-			return fmt.Sprintf("not ptr: " + rv.Kind().String())
+			return fmt.Sprintf("not ptr: %s", rv.Kind().String())
 		}
 		if rv.IsNil() {
 			return "IsNil"

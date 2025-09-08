@@ -3,13 +3,21 @@ package packages
 import (
 	"encoding/json"
 	"reflect"
-
-	"github.com/mattn/anko/env"
+	"sync/atomic"
 )
 
 func init() {
-	env.Packages["encoding/json"] = map[string]reflect.Value{
-		"Marshal":   reflect.ValueOf(json.Marshal),
-		"Unmarshal": reflect.ValueOf(json.Unmarshal),
-	}
+	defer func() {
+		atomic.AddInt32(initCount, 1)
+	}()
+	go func() {
+		completion.Add(1)
+		defer completion.Done()
+
+		jsonFuncs := map[string]reflect.Value{
+			"Marshal":   reflect.ValueOf(json.Marshal),
+			"Unmarshal": reflect.ValueOf(json.Unmarshal),
+		}
+		storeFuncs("encoding/json", jsonFuncs)
+	}()
 }

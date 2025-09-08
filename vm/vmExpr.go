@@ -522,30 +522,47 @@ func (runInfo *runInfoStruct) invokeExpr() {
 		name := runInfo.rv.String()
 		runInfo.rv = nilValue
 
-		methods, ok := env.Packages[name]
+		methods, ok := env.Packages.Load(name)
+		//[name]
 		if !ok {
 			runInfo.err = newStringError(expr, "package not found: "+name)
 			return
 		}
 		var err error
 		pack := runInfo.env.NewEnv()
-		for methodName, methodValue := range methods {
-			err = pack.DefineValue(methodName, methodValue)
+		methods.Range(func(methodName string, methodValue *reflect.Value) bool {
+			err = pack.DefineValue(methodName, *methodValue)
 			if err != nil {
 				runInfo.err = newStringError(expr, "import DefineValue error: "+err.Error())
-				return
+				return false
 			}
-		}
+			return true
+		})
+		//for methodName, methodValue := range methods {
+		//	err = pack.DefineValue(methodName, methodValue)
+		//	if err != nil {
+		//		runInfo.err = newStringError(expr, "import DefineValue error: "+err.Error())
+		//		return
+		//	}
+		//}
 
-		types, ok := env.PackageTypes[name]
+		types, ok := env.PackageTypes.Load(name)
 		if ok {
-			for typeName, typeValue := range types {
-				err = pack.DefineReflectType(typeName, typeValue)
+			types.Range(func(typeName string, typeValue *reflect.Type) bool {
+				err = pack.DefineReflectType(typeName, *typeValue)
 				if err != nil {
 					runInfo.err = newStringError(expr, "import DefineReflectType error: "+err.Error())
-					return
+					return false
 				}
-			}
+				return true
+			})
+			//for typeName, typeValue := range types {
+			//	err = pack.DefineReflectType(typeName, typeValue)
+			//	if err != nil {
+			//		runInfo.err = newStringError(expr, "import DefineReflectType error: "+err.Error())
+			//		return
+			//	}
+			//}
 		}
 
 		runInfo.rv = reflect.ValueOf(pack)

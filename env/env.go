@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"reflect"
 	"sync"
+
+	sm "github.com/chloyka/sync-map-generic"
 )
 
 type (
@@ -29,11 +31,15 @@ var (
 	// Packages is a where packages can be stored so VM import command can be used to import them.
 	// reflect.Value must be valid or VM may crash.
 	// For nil must use NilValue.
-	Packages = make(map[string]map[string]reflect.Value)
+	Packages = sm.KVMap[string, sm.KVMap[string, reflect.Value]]{}
+	//make(map[string]map[string]reflect.Value)
 	// PackageTypes is a where package types can be stored so VM import command can be used to import them
 	// reflect.Type must be valid or VM may crash.
 	// For nil type must use NilType.
-	PackageTypes = make(map[string]map[string]reflect.Type)
+	// syncmap.KVMap[int, string]
+	PackageTypes = sm.KVMap[string, sm.KVMap[string, reflect.Type]]{}
+	//sm.NewKVMap[string, sm.KVMap[string, reflect.Type]]()
+	//make(map[string]map[string]reflect.Type)
 
 	// NilType is the reflect.type of nil
 	NilType = reflect.TypeOf(nil)
